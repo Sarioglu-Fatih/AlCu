@@ -6,7 +6,7 @@
 #    By: bwisniew <bwisniew@student.42lyon.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/30 10:58:29 by bwisniew          #+#    #+#              #
-#    Updated: 2024/03/31 20:15:31 by bwisniew         ###   ########.fr        #
+#    Updated: 2024/03/31 20:07:00 by bwisniew         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,40 +26,47 @@ SRCS =	main.c					\
 		input.c					\
 		error.c					\
 		algo.c					\
-		routine.c
+		routine.c				\
+		color.c					\
+		mlx.c					\
+		display.c				\
+		hook.c
 
 OUTDIR = obj
+
+MINILIBX = minilibx/libmlx.a
 
 OBJ = $(SRCS:%.c=$(OUTDIR)/%.o)
 
 DEP = $(OBJ:%.o=%.d)
 
-INCLUDE = includes
+INCLUDE = includes minilibx
 
-NAME = alum1
+NAME = alum1_bonus
 
 all: $(NAME)
 
-$(NAME): $(OBJ)
-	$(CC) $(CFLAGS) -o $(NAME) $(OBJ)
+$(NAME): $(MINILIBX) $(OBJ)
+	$(CC) $(CFLAGS) -o $(NAME) $(OBJ) $(MINILIBX) -Lminilibx -lmlx -Iminilibx -lXext -lX11 -lm -lz
 
 $(OUTDIR)/%.o: $(SRCS_DIR)/%.c
 	@mkdir -p $(@D)
 	$(CC) $(C_FLAGS) $(INCLUDE:%=-I %) -o $@ -c $<
 
-bonus:
-	make -C bonus
+$(MINILIBX): FORCE
+	make -C minilibx -s
 
 clean:
 	rm -rf $(OUTDIR)
-	make -C bonus clean
+	make -C minilibx clean
 
 fclean: clean
-	rm -f $(NAME)
-	make -C bonus fclean
+	rm -f $(NAME) $(MINILIBX)
 
 re: fclean $(NAME)
 
+FORCE:
+
 -include $(DEP)
 
-.PHONY: all clean fclean re bonus
+.PHONY: all clean fclean re FORCE
